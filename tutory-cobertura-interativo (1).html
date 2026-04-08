@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tutory Experience · Cobertura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0d0b;--s1:#141210;--s2:#1c1917;--s3:#242018;--s4:#2c2820;
+  --border:#2e2a20;--border2:#3a3526;
+  --gold:#c9a84c;--gold2:#e2c97a;--gold-bg:rgba(201,168,76,0.10);--gold-b:rgba(201,168,76,0.25);
+  --text:#e8e2d4;--text2:#a89e8c;--text3:#6a6254;--text4:#3e3a30;
+  --ni-bg:#3a3726;--ni-t:#7a7260;--ni-b:#4a4530;
+  --ea-bg:#3a3010;--ea-t:#c9a030;--ea-b:#5a4820;
+  --po-bg:#0e2a18;--po-t:#4aaa6a;--po-b:#1a4a28;
+  --co-bg:#0e1e30;--co-t:#4a82c0;--co-b:#1a3050;
+  --danger:#8a3040;--danger-t:#d06070;
+  --safe-area-bottom:env(safe-area-inset-bottom,0px);
+  --bottom-nav:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+
+/* ── TOP BAR ─────────────────── */
+#topbar{
+  flex-shrink:0;background:var(--s1);border-bottom:1px solid var(--border);
+  padding:0 16px;height:52px;display:flex;align-items:center;gap:12px;z-index:50;
+}
+.logo{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap}
+.logo span{color:var(--text3);font-size:11px;font-weight:400}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.stat-mini{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:3px;border:1px solid;cursor:default}
+.stat-mini.ni{background:var(--ni-bg);color:var(--ni-t);border-color:var(--ni-b)}
+.stat-mini.ea{background:var(--ea-bg);color:var(--ea-t);border-color:var(--ea-b)}
+.stat-mini.po{background:var(--po-bg);color:var(--po-t);border-color:var(--po-b)}
+.stat-mini.co{background:var(--co-bg);color:var(--co-t);border-color:var(--co-b)}
+#prog-wrap{flex:1;max-width:160px;display:flex;flex-direction:column;gap:3px}
+#prog-pct{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);text-align:right}
+#prog-track{height:2px;background:var(--s4);border-radius:2px;overflow:hidden}
+#prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .4s ease;width:0%}
+
+/* ── LAYOUT ─────────────────── */
+#layout{flex:1;display:flex;overflow:hidden}
+
+/* ── SIDEBAR (desktop) ─────── */
+#sidebar{
+  width:210px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;padding:16px 0;
+}
+.view-toggle{display:flex;margin:0 12px 12px;background:var(--s2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.vt-btn{flex:1;padding:7px 0;text-align:center;font-size:11px;font-weight:700;color:var(--text3);cursor:pointer;transition:all .15s;border:none;background:none;font-family:'Syne',sans-serif;letter-spacing:.3px}
+.vt-btn.active{background:var(--gold-bg);color:var(--gold2)}
+.sidebar-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text4);padding:8px 16px 4px;display:block}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;border-left:2px solid transparent;transition:all .15s;user-select:none}
+.nav-item:hover{color:var(--text2);background:var(--gold-bg)}
+.nav-item.active{color:var(--gold2);border-left-color:var(--gold);background:var(--gold-bg)}
+.nav-item .ni-icon{font-size:13px;flex-shrink:0}
+.nav-item .ni-count{margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;color:var(--text4)}
+.nav-item.active .ni-count{color:var(--gold)}
+.person-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── MAIN ───────────────────── */
+#main{flex:1;overflow-y:auto;padding:20px 16px 80px;-webkit-overflow-scrolling:touch}
+
+/* ── VIEW HEADER ────────────── */
+.view-header{display:flex;align-items:flex-end;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.vh-num{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;color:rgba(201,168,76,.12);line-height:1;flex-shrink:0;user-select:none}
+.vh-info h2{font-family:'Playfair Display',serif;font-size:18px;color:var(--text);font-weight:700;line-height:1.2}
+.vh-info p{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:3px}
+.vh-badge{margin-left:auto;flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:4px;background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-b)}
+
+/* ── BLOCK ──────────────────── */
+.block{margin-bottom:20px}
+.block-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:9px 12px;background:var(--s2);border:1px solid var(--border);border-radius:6px;border-left:3px solid}
+.bh-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;flex:1}
+.bh-count{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)}
+
+/* ── TASK CARD ──────────────── */
+.task-card{background:var(--s2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;overflow:hidden;transition:border-color .15s}
+.tc-strip{height:2px;transition:background .2s}
+.strip-ni{background:var(--ni-b)}.strip-ea{background:var(--ea-t)}.strip-po{background:var(--po-t)}.strip-co{background:var(--co-t)}
+.tc-top{display:flex;align-items:flex-start;gap:10px;padding:12px 12px 10px;cursor:pointer;min-height:0}
+.tc-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);white-space:nowrap;min-width:44px;flex-shrink:0;margin-top:2px;line-height:1.3}
+.tc-body{flex:1;min-width:0}
+.tc-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:5px}
+.tc-people{display:flex;flex-wrap:wrap;gap:3px}
+.ptag{display:inline-flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;border:1px solid;letter-spacing:.2px;font-weight:500}
+.tc-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;padding-left:4px}
+.tc-expand{color:var(--text4);font-size:11px;transition:transform .2s;line-height:1;padding:2px}
+.task-card.open .tc-expand{transform:rotate(180deg)}
+.btn-edit{background:var(--s3);border:1px solid var(--border2);border-radius:4px;padding:4px 8px;font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-edit:hover,.btn-edit:active{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-b)}
+
+/* STATUS SELECTOR */
+.status-sel{display:flex;gap:1px;background:var(--s3);border:1px solid var(--border2);border-radius:4px;overflow:hidden}
+.ss-opt{padding:3px 6px;font-family:'DM Mono',monospace;font-size:9px;cursor:pointer;transition:all .12s;white-space:nowrap;border:none;background:transparent;color:var(--text4);font-weight:500}
+.ss-opt:active{opacity:.7}
+.ss-opt.active-ni{background:var(--ni-bg);color:var(--ni-t)}
+.ss-opt.active-ea{background:var(--ea-bg);color:var(--ea-t)}
+.ss-opt.active-po{background:var(--po-bg);color:var(--po-t)}
+.ss-opt.active-co{background:var(--co-bg);color:var(--co-t)}
+
+/* EXPANDED */
+.tc-detail{display:none;padding:0 12px 12px 56px;font-size:12px;color:var(--text2);line-height:1.6;border-top:1px solid var(--border)}
+.task-card.open .tc-detail{display:block}
+.d-row{display:flex;gap:8px;margin-top:7px;align-items:flex-start}
+.d-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text4);min-width:58px;flex-shrink:0;margin-top:2px}
+.d-val{color:var(--text2);font-size:12px}
+.tipo-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;border:1px solid var(--border2);color:var(--text3);background:var(--s3)}
+.obs-box{background:var(--s3);border:1px solid var(--border);border-left:2px solid var(--gold-b);border-radius:4px;padding:8px 10px;margin-top:7px;font-size:11px;color:var(--text2);line-height:1.6;white-space:pre-wrap}
+
+/* ADD TASK BUTTON */
+.btn-add-task{width:100%;padding:9px;background:transparent;border:1px dashed var(--border2);border-radius:6px;color:var(--text4);font-family:'Syne',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-add-task:hover,.btn-add-task:active{border-color:var(--gold-b);color:var(--gold);background:var(--gold-bg)}
+
+/* ── PERSON HEADER ──────────── */
+.person-hdr{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px}
+.person-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;flex-shrink:0;border:2px solid}
+.person-info h3{font-size:15px;font-weight:700;color:var(--text)}
+.person-info p{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px}
+.person-tc{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)}
+.pdg-lbl{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin:12px 0 6px;display:block}
+
+/* ── BOTTOM NAV (mobile) ─────── */
+#bottom-nav{
+  display:none;flex-shrink:0;background:var(--s1);border-top:1px solid var(--border);
+  height:auto;
+  padding-bottom:var(--safe-area-bottom);z-index:50;
+}
+.bn-tabs{display:flex;height:var(--bottom-nav)}
+.bn-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--text4);transition:all .15s;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.5px;text-transform:uppercase;border:none;background:none;padding:4px 2px}
+.bn-tab .t-icon{font-size:16px;line-height:1}
+.bn-tab.active{color:var(--gold)}
+/* day sub-tabs */
+#day-subtabs{display:none;background:var(--s2);border-top:1px solid var(--border);overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;white-space:nowrap;padding:0 4px}
+.dst{display:inline-flex;align-items:center;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;scroll-snap-align:start;transition:all .15s;white-space:nowrap;font-family:'Syne',sans-serif}
+.dst.active{color:var(--gold);border-bottom-color:var(--gold)}
+/* person sub-tabs */
+#person-subtabs{display:none;background:var(--s2);border-top:1px solid var(--border);overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;white-space:nowrap;padding:4px 6px 0;}
+.pst{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 14px 8px;font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;border-bottom:3px solid transparent;scroll-snap-align:start;transition:all .15s;white-space:nowrap;font-family:'Syne',sans-serif;min-width:72px;min-height:60px}
+.pst.active{color:var(--text);border-bottom-color:var(--gold)}
+.pst-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;border:2px solid;transition:all .15s}
+
+/* ── FAB ────────────────────── */
+#fab{position:fixed;bottom:calc(var(--bottom-nav) + var(--safe-area-bottom) + 12px);right:16px;width:48px;height:48px;background:var(--gold);border-radius:50%;border:none;cursor:pointer;font-size:22px;color:var(--bg);display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(201,168,76,.4);z-index:60;transition:transform .15s}
+#fab:active{transform:scale(.92)}
+
+/* ── MODAL ──────────────────── */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:flex-end;justify-content:center}
+#modal-overlay.active{display:flex}
+#modal{
+  background:var(--s1);border:1px solid var(--border2);border-radius:16px 16px 0 0;
+  width:100%;max-width:600px;max-height:90vh;overflow-y:auto;
+  padding:0 0 calc(20px + var(--safe-area-bottom));
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.32,1,.23,1);
+  -webkit-overflow-scrolling:touch;
+}
+#modal-overlay.active #modal{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0}
+.modal-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.modal-title{font-size:15px;font-weight:700;color:var(--text);flex:1}
+.btn-modal-del{background:rgba(138,48,64,.15);border:1px solid var(--danger);border-radius:6px;padding:6px 12px;color:var(--danger-t);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer}
+.btn-modal-del:active{opacity:.7}
+.btn-modal-close{background:var(--s3);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;color:var(--text3);font-size:14px;cursor:pointer;line-height:1}
+.modal-body{padding:16px 20px}
+.field-group{margin-bottom:14px}
+.field-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text4);margin-bottom:5px;display:block}
+.field-input,.field-textarea,.field-select{width:100%;background:var(--s3);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;color:var(--text);font-family:'Syne',sans-serif;font-size:13px;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.field-input:focus,.field-textarea:focus,.field-select:focus{border-color:var(--gold-b)}
+.field-textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field-select{background-color:var(--s3);color:var(--text)}
+.field-select option{background:var(--s2);color:var(--text)}
+/* People chips */
+.people-chips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{padding:5px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--s3);font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);cursor:pointer;transition:all .15s;user-select:none}
+.pchip.selected{border-width:1.5px}
+/* Block chips */
+.block-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.bchip{padding:5px 10px;border-radius:4px;border:1px solid var(--border2);background:var(--s3);font-size:10px;font-weight:600;color:var(--text3);cursor:pointer;transition:all .12s;user-select:none}
+.bchip.selected{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-b)}
+/* Status chips */
+.status-chips{display:flex;gap:6px;flex-wrap:wrap}
+.schip{padding:5px 12px;border-radius:4px;border:1px solid var(--border2);background:var(--s3);font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);cursor:pointer;transition:all .12s}
+.schip.s-ni.sel{background:var(--ni-bg);color:var(--ni-t);border-color:var(--ni-b)}
+.schip.s-ea.sel{background:var(--ea-bg);color:var(--ea-t);border-color:var(--ea-b)}
+.schip.s-po.sel{background:var(--po-bg);color:var(--po-t);border-color:var(--po-b)}
+.schip.s-co.sel{background:var(--co-bg);color:var(--co-t);border-color:var(--co-b)}
+/* Save btn */
+.btn-save{width:100%;padding:14px;background:var(--gold);border:none;border-radius:8px;color:var(--bg);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;transition:opacity .15s}
+.btn-save:active{opacity:.8}
+
+/* ── DESKTOP OVERRIDES ──────── */
+@media(min-width:600px){
+  #sidebar{display:flex}
+  #bottom-nav,#day-subtabs,#person-subtabs,#fab{display:none !important}
+  #main{padding:24px 28px 40px}
+  #modal-overlay{align-items:center}
+  #modal{border-radius:12px;max-height:80vh;transform:scale(.95) translateY(10px);opacity:0;transition:all .25s cubic-bezier(.32,1,.23,1)}
+  #modal-overlay.active #modal{transform:scale(1) translateY(0);opacity:1}
+  .tc-time{min-width:52px;font-size:11px}
+  .tc-title{font-size:13px}
+  .status-sel .ss-opt{padding:3px 7px;font-size:9px}
+  #fab{display:none}
+}
+@media(max-width:599px){
+  #sidebar{display:none}
+  #bottom-nav{display:flex;flex-direction:column}
+  #fab{display:flex}
+  #topbar{height:48px;padding:0 12px}
+  .logo{font-size:13px}
+  #prog-wrap{max-width:110px}
+  .stat-mini{font-size:9px;padding:2px 5px}
+  #main{padding:14px 12px 80px}
+  .view-header{margin-bottom:14px;padding-bottom:12px}
+  .vh-num{font-size:32px}
+  .vh-info h2{font-size:16px}
+  .tc-top{padding:10px 10px 8px}
+  .tc-title{font-size:12px}
+  .tc-time{min-width:38px;font-size:9px}
+  .status-sel .ss-opt{font-size:8px;padding:2px 4px}
+  .btn-edit{font-size:8px;padding:3px 6px}
+  .tc-detail{padding:0 10px 10px 50px}
+}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.task-card{animation:fadeIn .18s ease both}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;color:var(--text4);text-align:center;gap:6px}
+.empty-state .ei{font-size:28px;margin-bottom:6px}
+.empty-state h3{font-size:15px;color:var(--text3)}
+.empty-state p{font-size:12px}
+
+/* Confirm dialog */
+#confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+#confirm-overlay.active{display:flex}
+#confirm-box{background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:24px;width:100%;max-width:320px}
+#confirm-box p{font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.5}
+.confirm-btns{display:flex;gap:8px}
+.btn-no{flex:1;padding:10px;background:var(--s3);border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.btn-yes{flex:1;padding:10px;background:rgba(138,48,64,.2);border:1px solid var(--danger);border-radius:6px;color:var(--danger-t);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="logo">Tutory <span>· Cobertura</span></div>
+  <div id="prog-wrap">
+    <div id="prog-pct" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);text-align:right">0%</div>
+    <div id="prog-track"><div id="prog-fill"></div></div>
+  </div>
+  <div class="top-right">
+    <div class="stat-mini ea"><span id="cnt-ea">0</span></div>
+    <div class="stat-mini po"><span id="cnt-po">0</span></div>
+    <div class="stat-mini co"><span id="cnt-co">0</span></div>
+  </div>
+</div>
+
+<div id="layout">
+  <div id="sidebar">
+    <div class="view-toggle">
+      <button class="vt-btn active" onclick="setView('day')">Por Dia</button>
+      <button class="vt-btn" onclick="setView('person')">Por Pessoa</button>
+    </div>
+    <div id="day-nav">
+      <span class="sidebar-label">Dias</span>
+      <div class="nav-item active" onclick="selectDay('quinta')" id="nav-quinta"><span class="ni-icon">🔧</span>Quinta · 09/04<span class="ni-count" id="dc-quinta"></span></div>
+      <div class="nav-item" onclick="selectDay('sexta')" id="nav-sexta"><span class="ni-icon">🎙</span>Sexta · 10/04<span class="ni-count" id="dc-sexta"></span></div>
+      <div class="nav-item" onclick="selectDay('sabado')" id="nav-sabado"><span class="ni-icon">🎤</span>Sábado · 11/04<span class="ni-count" id="dc-sabado"></span></div>
+      <div class="nav-item" onclick="selectDay('pos')" id="nav-pos"><span class="ni-icon">📦</span>Pós-Evento<span class="ni-count" id="dc-pos"></span></div>
+    </div>
+    <div id="person-nav" style="display:none">
+      <span class="sidebar-label">Pessoas</span>
+    </div>
+  </div>
+  <div id="main"></div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<div id="bottom-nav">
+  <div id="day-subtabs"></div>
+  <div id="person-subtabs"></div>
+  <div class="bn-tabs">
+    <button class="bn-tab active" id="bn-day" onclick="setView('day')"><span class="t-icon">📅</span>Por Dia</button>
+    <button class="bn-tab" id="bn-person" onclick="setView('person')"><span class="t-icon">👤</span>Por Pessoa</button>
+    <button class="bn-tab" onclick="openAddModal()"><span class="t-icon">➕</span>Adicionar</button>
+  </div>
+</div>
+
+<!-- FAB (desktop hidden) -->
+<button id="fab" onclick="openAddModal()">+</button>
+
+<!-- Edit/Add Modal -->
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Nova Tarefa</div>
+      <button class="btn-modal-del" id="btn-del" onclick="confirmDelete()" style="display:none">🗑 Excluir</button>
+      <button class="btn-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+
+      <div class="field-group">
+        <label class="field-label">Título *</label>
+        <input class="field-input" id="f-title" placeholder="Descrição da tarefa">
+      </div>
+      <div style="display:flex;gap:10px">
+        <div class="field-group" style="flex:1">
+          <label class="field-label">Horário</label>
+          <input class="field-input" id="f-time" placeholder="Ex: 07h00">
+        </div>
+        <div class="field-group" style="flex:1">
+          <label class="field-label">Dia</label>
+          <select class="field-select" id="f-day">
+            <option value="quinta">Quinta · 09/04</option>
+            <option value="sexta">Sexta · 10/04</option>
+            <option value="sabado">Sábado · 11/04</option>
+            <option value="pos">Pós-Evento</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Bloco</label>
+        <div class="block-chips" id="block-chips"></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Responsáveis</label>
+        <div class="people-chips" id="people-chips"></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Tipo de Conteúdo</label>
+        <input class="field-input" id="f-tipo" placeholder="Ex: Gravação de podcast">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Equipamento</label>
+        <input class="field-input" id="f-equip" placeholder="Ex: Câmera + celular">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Observações / Copy / Ação</label>
+        <textarea class="field-textarea" id="f-obs" placeholder="Instruções, copy sugerido, detalhes..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Andamento</label>
+        <div class="status-chips">
+          <div class="schip s-ni" data-val="nao-iniciado" onclick="selectStatusChip(this)">Não Iniciado</div>
+          <div class="schip s-ea" data-val="em-andamento" onclick="selectStatusChip(this)">Em Andamento</div>
+          <div class="schip s-po" data-val="postado" onclick="selectStatusChip(this)">Postado</div>
+          <div class="schip s-co" data-val="concluido" onclick="selectStatusChip(this)">Concluído</div>
+        </div>
+      </div>
+
+      <button class="btn-save" onclick="saveTask()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<div id="confirm-overlay">
+  <div id="confirm-box">
+    <p>Excluir esta tarefa? Essa ação não pode ser desfeita.</p>
+    <div class="confirm-btns">
+      <button class="btn-no" onclick="document.getElementById('confirm-overlay').classList.remove('active')">Cancelar</button>
+      <button class="btn-yes" onclick="deleteTask()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PEOPLE = {
+  Gabriella:{ color:'#c9a84c',bg:'rgba(201,168,76,.12)',border:'rgba(201,168,76,.3)',role:'Head · Apresentadora · Entrevistadora',av:'G' },
+  Letícia:  { color:'#4aaa6a',bg:'rgba(74,170,106,.12)',border:'rgba(74,170,106,.3)',role:'Social Media · Postagens · Entrevistadora',av:'L' },
+  Paulo:    { color:'#7a60c0',bg:'rgba(122,96,192,.12)',border:'rgba(122,96,192,.3)',role:'Designer · Artes e templates',av:'P' },
+  Adriano:  { color:'#50a0b0',bg:'rgba(80,160,176,.12)',border:'rgba(80,160,176,.3)',role:'Vídeos elaborados · Podcasts · Cortes',av:'Ad' },
+  Amanda:   { color:'#c07840',bg:'rgba(192,120,64,.12)',border:'rgba(192,120,64,.3)',role:'Fotógrafa em tempo real',av:'Am' },
+  Henrique: { color:'#a05070',bg:'rgba(160,80,112,.12)',border:'rgba(160,80,112,.3)',role:'Vídeos em tempo real · Redes sociais',av:'H' },
+  Cadu:     { color:'#4080c0',bg:'rgba(64,128,192,.12)',border:'rgba(64,128,192,.3)',role:'Operação · Gravação de podcasts',av:'C' },
+  Marlom:   { color:'#b09060',bg:'rgba(176,144,96,.12)',border:'rgba(176,144,96,.3)',role:'CEO Tutory · Entrevistador podcasts',av:'M' },
+};
+const DAYS = {
+  quinta:{ label:'Quinta-feira',date:'09 de abril',icon:'🔧',num:'09' },
+  sexta: { label:'Sexta-feira', date:'10 de abril',icon:'🎙',num:'10' },
+  sabado:{ label:'Sábado — Evento Principal',date:'11 de abril',icon:'🎤',num:'11' },
+  pos:   { label:'Pós-Evento',  date:'A partir de 12/04',icon:'📦',num:'∞' },
+};
+const BLOCKS = {
+  setup:     { label:'Setup e Preparação',  color:'#6a6254' },
+  podcast:   { label:'Podcasts com Marlom', color:'#c9a84c' },
+  externo:   { label:'Conteúdo Externo',    color:'#4a8a5c' },
+  jiujitsu:  { label:'Jiu-Jitsu com Marlom',color:'#4a8a5c' },
+  adriana:   { label:'Adriana Figueiredo',  color:'#4a72a0' },
+  jantar:    { label:'Jantar Esmeralda',    color:'#a05060' },
+  encerra:   { label:'Encerramento do Dia', color:'#6a6254' },
+  logistica: { label:'Logística / Chegada', color:'#6a6254' },
+  credencial:{ label:'Credenciamento',      color:'#c9a84c' },
+  cafe:      { label:'Experiência Esmeralda',color:'#c09048' },
+  abertura:  { label:'Abertura',            color:'#c9a84c' },
+  palestra:  { label:'Palestra',            color:'#c9a84c' },
+  take:      { label:'Pós-Palestra (take)',  color:'#a07030' },
+  almoco:    { label:'Almoço',              color:'#4a8a5c' },
+  ativacao:  { label:'Ativações',           color:'#50909a' },
+  hotseat:   { label:'Hot Seat',            color:'#a05060' },
+  happyhour: { label:'Encerramento / Happy Hour',color:'#c9a84c' },
+  pos:       { label:'Publicações Pós-Evento',color:'#4a72a0' },
+  relac:     { label:'Relacionamento',      color:'#4a8a5c' },
+};
+
+let tasks = [
+// ── QUINTA ──────────────────────────────────────────
+{id:'q1',day:'quinta',time:'Até 23h',block:'setup',blockLabel:'Setup e Preparação',title:'Montar setup completo de gravação dos podcasts na sede',people:['Henrique','Cadu'],tipo:'Setup técnico',equip:'Câmera, microfone, ring light, tripé, cartões de memória formatados',obs:'Montar tudo na quinta para a sexta começar pronto.\nTestar áudio e iluminação antes de sair.\nCartão de memória: formatar e testar capacidade.',status:'nao-iniciado'},
+{id:'q2',day:'quinta',time:'—',block:'setup',blockLabel:'Setup e Preparação',title:'Teste completo de áudio e iluminação',people:['Henrique','Cadu','Adriano'],tipo:'Teste técnico',equip:'Setup completo',obs:'Adriano aprova o setup final antes de ir embora na quinta.',status:'nao-iniciado'},
+{id:'q3',day:'quinta',time:'—',block:'setup',blockLabel:'Setup e Preparação',title:'Reunião de alinhamento da equipe: briefing, horários e fluxo de arquivos',people:['Gabriella'],tipo:'Organização',equip:'—',obs:'Confirmar grupo de WhatsApp da equipe.\nNomear pasta no Drive: TUTORY_EXP > QUINTA_setup / SEXTA / SÁBADO / POS',status:'nao-iniciado'},
+{id:'q4',day:'quinta',time:'—',block:'setup',blockLabel:'Setup e Preparação',title:'Paulo: templates de capa de story (palestrante + horário) e lower third para vídeos',people:['Paulo'],tipo:'Design',equip:'Computador · Canva ou Figma',obs:'Templates precisam estar prontos antes da sexta.\nCriar: capa de story por podcast, lower third genérico e fundo para frase de palestrante.',status:'nao-iniciado'},
+{id:'q5',day:'quinta',time:'—',block:'setup',blockLabel:'Setup e Preparação',title:'Gabriella e Letícia revisam perguntas de entrevista e podcasts',people:['Gabriella','Letícia'],tipo:'Preparação de conteúdo',equip:'—',obs:'Cada entrevistadora com sua lista no celular.\nPerguntas dos podcasts: como estava antes / resultados / plataforma Tutory.',status:'nao-iniciado'},
+// ── SEXTA ────────────────────────────────────────────
+{id:'s0',day:'sexta',time:'07h00',block:'logistica',blockLabel:'Chegada e Setup Final',title:'Toda a equipe chega à sede',people:['Gabriella','Letícia','Paulo','Adriano','Amanda','Henrique','Cadu'],tipo:'Logística',equip:'—',obs:'Ponto de encontro: sede Tutory.\nTodos confirmam chegada no grupo da equipe.',status:'nao-iniciado'},
+{id:'s1',day:'sexta',time:'07h15',block:'logistica',blockLabel:'Chegada e Setup Final',title:'Verificação final do setup de gravação dos podcasts',people:['Cadu','Henrique','Adriano'],tipo:'Setup técnico',equip:'Setup completo montado na quinta',obs:'Confirmar: câmera ligada, foco ok, microfone testado, luz ajustada, cartão formatado.\nAdriano: HD externo conectado para backup direto.',status:'nao-iniciado'},
+{id:'s2',day:'sexta',time:'07h30',block:'logistica',blockLabel:'Chegada e Setup Final',title:'Gabriella e Letícia: alinhamento de conteúdo externo',people:['Gabriella','Letícia'],tipo:'Preparação',equip:'Celulares',obs:'Durante os podcasts, Gabriella e Letícia ficam do lado de fora gravando com os convidados presentes na sede.\nDefinir: quem filma, quem entrevista, ordem de abordagem.',status:'nao-iniciado'},
+{id:'p1a',day:'sexta',time:'08h00',block:'podcast',blockLabel:'Podcasts com Marlom',title:'PODCAST — Jamilk · Marlom entrevista',people:['Marlom','Cadu','Henrique','Adriano'],tipo:'Gravação de podcast',equip:'Setup completo de gravação',obs:'Marlom conduz a entrevista.\nCadu + Henrique + Adriano: responsáveis pela gravação dentro do estúdio.\nAdriano inicia cortes em tempo real.',status:'nao-iniciado'},
+{id:'p1b',day:'sexta',time:'08h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Gabriella + Letícia: 3+ conteúdos com pessoas na sede (durante Jamilk)',people:['Gabriella','Letícia'],tipo:'Gravação externa · Reels · Stories',equip:'Celulares',obs:'Formatos: antes da Tutory / resultado alcançado / experiência com a plataforma.',status:'nao-iniciado'},
+{id:'p1c',day:'sexta',time:'08h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Adriano: cortes em tempo real — podcast Jamilk',people:['Adriano'],tipo:'Edição em tempo real',equip:'Software de edição',obs:'Separar o momento mais forte para o corte.\nEnviar ao menos 1 corte finalizado para o Drive antes do fim do podcast.',status:'nao-iniciado'},
+{id:'p2a',day:'sexta',time:'09h00',block:'podcast',blockLabel:'Podcasts com Marlom',title:'PODCAST — Thallius Moraes · Marlom entrevista',people:['Marlom','Cadu','Henrique','Adriano'],tipo:'Gravação de podcast',equip:'Setup completo de gravação',obs:'Thallius também estará no sábado — explorar expectativas para o evento durante o podcast.',status:'nao-iniciado'},
+{id:'p2b',day:'sexta',time:'09h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Gabriella + Letícia: conteúdos externos (durante Thallius Moraes)',people:['Gabriella','Letícia'],tipo:'Gravação externa',equip:'Celulares',obs:'Letícia posta stories em tempo real do que estiver acontecendo fora.',status:'nao-iniciado'},
+{id:'p2c',day:'sexta',time:'09h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Adriano: cortes em tempo real — podcast Thallius Moraes',people:['Adriano'],tipo:'Edição em tempo real',equip:'Software de edição',obs:'',status:'nao-iniciado'},
+{id:'p3a',day:'sexta',time:'11h00',block:'podcast',blockLabel:'Podcasts com Marlom',title:'PODCAST — Pedro Cooke · Marlom entrevista',people:['Marlom','Cadu','Henrique','Adriano'],tipo:'Gravação de podcast',equip:'Setup completo de gravação',obs:'Pedro Cooke é palestrante no sábado — explorar expectativas durante o podcast.',status:'nao-iniciado'},
+{id:'p3b',day:'sexta',time:'11h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Gabriella + Letícia: conteúdos externos (durante Pedro Cooke)',people:['Gabriella','Letícia'],tipo:'Gravação externa',equip:'Celulares',obs:'',status:'nao-iniciado'},
+{id:'p3c',day:'sexta',time:'11h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Adriano: cortes em tempo real — podcast Pedro Cooke',people:['Adriano'],tipo:'Edição em tempo real',equip:'Software de edição',obs:'',status:'nao-iniciado'},
+{id:'p4a',day:'sexta',time:'12h00',block:'podcast',blockLabel:'Podcasts com Marlom',title:'PODCAST — Juliano Tamago · Marlom entrevista',people:['Marlom','Cadu','Henrique','Adriano'],tipo:'Gravação de podcast',equip:'Setup completo de gravação',obs:'',status:'nao-iniciado'},
+{id:'p4b',day:'sexta',time:'12h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Gabriella + Letícia: conteúdos externos (durante Juliano Tamago)',people:['Gabriella','Letícia'],tipo:'Gravação externa',equip:'Celulares',obs:'',status:'nao-iniciado'},
+{id:'p4c',day:'sexta',time:'12h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Adriano: cortes em tempo real — podcast Juliano Tamago',people:['Adriano'],tipo:'Edição em tempo real',equip:'Software de edição',obs:'',status:'nao-iniciado'},
+{id:'p5a',day:'sexta',time:'13h00',block:'podcast',blockLabel:'Podcasts com Marlom',title:'PODCAST — Guilherme Neves · Marlom entrevista',people:['Marlom','Cadu','Henrique','Adriano'],tipo:'Gravação de podcast',equip:'Setup completo de gravação',obs:'Último podcast — confirmar backup de todos os episódios ao terminar.',status:'nao-iniciado'},
+{id:'p5b',day:'sexta',time:'13h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Gabriella + Letícia: conteúdos externos (durante Guilherme Neves)',people:['Gabriella','Letícia'],tipo:'Gravação externa',equip:'Celulares',obs:'',status:'nao-iniciado'},
+{id:'p5c',day:'sexta',time:'13h00',block:'externo',blockLabel:'Conteúdo Externo (durante podcasts)',title:'Adriano: cortes em tempo real — podcast Guilherme Neves',people:['Adriano'],tipo:'Edição em tempo real',equip:'Software de edição',obs:'',status:'nao-iniciado'},
+{id:'jj1',day:'sexta',time:'A confirmar',block:'jiujitsu',blockLabel:'Jiu-Jitsu com Marlom',title:'Letícia e Henrique: aula de jiu-jitsu com Marlom e convidados',people:['Letícia','Henrique'],tipo:'Conteúdo de bastidor · Story · Reel',equip:'Celular (vertical 9:16) · Câmera de ação se disponível',obs:"Capturar: chegada/aquecimento · treino com Marlom · bastidores espontâneos.\nDepoimento rápido pós-treino.\nTom: autêntico, energético — humaniza o CEO.",status:'nao-iniciado'},
+{id:'jj2',day:'sexta',time:'A confirmar',block:'jiujitsu',blockLabel:'Jiu-Jitsu com Marlom',title:"Letícia: postar stories em tempo real do jiu-jitsu",people:['Letícia'],tipo:'Story em tempo real',equip:'Celular',obs:"Copy: 'O CEO da Tutory não descansa nem na véspera do evento. Esse é o Marlom.'\nPostar pelo menos 2–3 stories.",status:'nao-iniciado'},
+{id:'af1',day:'sexta',time:'16h00',block:'adriana',blockLabel:'Adriana Figueiredo — Sede',title:'Recepção de Adriana Figueiredo. Setup pronto antes das 16h.',people:['Gabriella','Adriano'],tipo:'Preparação · Logística',equip:'Setup de gravação já montado',obs:'Adriano confirma setup pronto ANTES das 16h.\nAmbiente organizado para gravação e fotos.',status:'nao-iniciado'},
+{id:'af2',day:'sexta',time:'16h15',block:'adriana',blockLabel:'Adriana Figueiredo — Sede',title:'Bloco 1 — Entrevista com Adriana: trajetória e mercado educacional',people:['Gabriella','Adriano','Amanda'],tipo:'Entrevista · Podcast · Reels',equip:'Setup podcast + câmera adicional + câmera fotográfica',obs:"Perguntas:\n• Como foi sua trajetória no mercado educacional?\n• O que mudou no seu negócio com a Tutory?\n• O que você espera do Tutory Experience amanhã?\nGravar 3+ formatos.",status:'nao-iniciado'},
+{id:'af3',day:'sexta',time:'16h45',block:'adriana',blockLabel:'Adriana Figueiredo — Sede',title:'Bloco 2 — Conteúdos de bastidor e prova social com Adriana',people:['Gabriella','Adriano','Henrique'],tipo:'Story · Reels curtos · Bastidor',equip:'Câmera vertical (celular) + câmera principal',obs:"Formatos:\n• Story: Adriana sobre o evento de amanhã\n• Clip: 'O que vou levar pra casa do Tutory Experience'\n• #EUVOU confirmando presença no sábado",status:'nao-iniciado'},
+{id:'af4',day:'sexta',time:'17h15',block:'adriana',blockLabel:'Adriana Figueiredo — Sede',title:'Fotos com Adriana em 2+ ambientes da sede',people:['Amanda'],tipo:'Fotografia · Conteúdo de feed',equip:'Câmera fotográfica · Iluminação',obs:'Fotografar em pelo menos 2 ambientes.\nFoto com Gabriella para stories de parceria.',status:'nao-iniciado'},
+{id:'af5',day:'sexta',time:'17h45',block:'adriana',blockLabel:'Adriana Figueiredo — Sede',title:'Alinhamento com Adriana sobre presença no sábado',people:['Gabriella'],tipo:'Alinhamento',equip:'—',obs:'Combinar: horário de chegada · momentos disponíveis · posição no palco.',status:'nao-iniciado'},
+{id:'j1',day:'sexta',time:'19h30+',block:'jantar',blockLabel:'Jantar Esmeralda — CHARD',title:'Cobertura do jantar: ambiente, conexões e depoimento de Marlom',people:['Adriano','Amanda'],tipo:'Captação de bastidor',equip:'Câmera discreta · Celular',obs:'Capturar: ambiente e decoração (chegar antes dos convidados) · momentos de conexão.\nNÃO filmar conversas privadas. Tom: exclusividade, sofisticação.',status:'nao-iniciado'},
+{id:'j2',day:'sexta',time:'19h30+',block:'jantar',blockLabel:'Jantar Esmeralda — CHARD',title:"Gabriella: depoimento rápido com Marlom sobre expectativa para sábado",people:['Gabriella'],tipo:'Entrevista rápida',equip:'Celular',obs:"Pergunta: 'O que você espera que aconteça amanhã — não como CEO, mas como educador?'",status:'nao-iniciado'},
+{id:'j3',day:'sexta',time:'Durante',block:'jantar',blockLabel:'Jantar Esmeralda — CHARD',title:"Story ao vivo do jantar com Gabriella",people:['Gabriella','Adriano'],tipo:'Story em tempo real',equip:'Celular',obs:"Copy: 'Os esmeraldas já estão aqui. O evento não começa amanhã — ele já começou.'\nPostar antes das 22h.",status:'nao-iniciado'},
+{id:'j4',day:'sexta',time:'Ao final',block:'jantar',blockLabel:'Jantar Esmeralda — CHARD',title:"Letícia: coletar frases espontâneas — 'em uma palavra, o que você espera de amanhã?'",people:['Letícia','Gabriella'],tipo:'Depoimento rápido · Story',equip:'Celular',obs:'Story de encerramento da sexta. Mínimo 4–5 pessoas.',status:'nao-iniciado'},
+{id:'e1',day:'sexta',time:'Ao sair',block:'encerra',blockLabel:'Encerramento da Sexta',title:'Adriano: finaliza últimos ajustes técnicos para o sábado (não inicia cortes dos podcasts)',people:['Adriano'],tipo:'Preparação para sábado',equip:'Notebook · Equipamentos',obs:'Foco nos ajustes finais para o sábado. Edição dos cortes fica para o pós-evento.',status:'nao-iniciado'},
+{id:'e2',day:'sexta',time:'Ao sair',block:'encerra',blockLabel:'Encerramento da Sexta',title:'Adriano: backup completo dos arquivos da sexta no Drive',people:['Adriano'],tipo:'Backup',equip:'HD externo · Drive',obs:'Pasta: TUTORY_EXP > SEXTA_10ABR > Podcasts / Adriana / Externo / Jantar\nNinguém sai sem confirmar backup.',status:'nao-iniciado'},
+// ── SÁBADO ───────────────────────────────────────────
+{id:'sb0',day:'sabado',time:'07h00',block:'logistica',blockLabel:'Chegada — CICB',title:'Toda equipe chega ao CICB',people:['Gabriella','Letícia','Paulo','Adriano','Amanda','Henrique','Cadu'],tipo:'Logística',equip:'Todos os equipamentos',obs:'Posições: Adriano câmera principal (fundo do palco) · Henrique bastidores e público · Amanda circulando.\nVerificar acesso: backstage, stands, área Esmeralda.',status:'nao-iniciado'},
+{id:'sb1',day:'sabado',time:'07h15',block:'logistica',blockLabel:'Chegada — CICB',title:'Adriano: filmar espaço vazio — auditório, palco, cadeiras',people:['Adriano'],tipo:'Vídeo de abertura · Bastidor',equip:'Câmera principal',obs:"Clipe 15–20s para abertura do compilado.\nCopy: 'Em poucas horas, essa sala vai estar cheia.'",status:'nao-iniciado'},
+{id:'sb2',day:'sabado',time:'07h15',block:'logistica',blockLabel:'Chegada — CICB',title:'Amanda: fotografar setup — palco, stands, experiência Esmeralda',people:['Amanda'],tipo:'Fotografia · Detalhes',equip:'Câmera fotográfica',obs:'Stands: Hub · Nexus · Minhas Férias · Loja Tutory\nExperiência Esmeralda: café gourmet, concierge, espaço açaí.',status:'nao-iniciado'},
+{id:'sb3',day:'sabado',time:'07h15',block:'logistica',blockLabel:'Chegada — CICB',title:'Paulo: preparar artes, capas de story e fundos de frase para o dia',people:['Paulo'],tipo:'Design',equip:'Notebook · Canva',obs:'Artes para usar durante as palestras:\n• Capa de story (nome do palestrante)\n• Fundo para frase de impacto (preto + texto dourado)\n• Template take/feed orgânico',status:'nao-iniciado'},
+{id:'cr1',day:'sabado',time:'07h30',block:'credencial',blockLabel:'Credenciamento',title:'Story de abertura do dia — Gabriella na entrada do CICB',people:['Gabriella','Henrique'],tipo:'Story em tempo real',equip:'Celular vertical',obs:"Copy: 'Bom dia, Brasília. O Tutory Experience começa agora. Eu vou estar aqui o dia todo com você.'\nFilmar caminhando para dentro do CICB.",status:'nao-iniciado'},
+{id:'cr2',day:'sabado',time:'07h30–08h30',block:'credencial',blockLabel:'Credenciamento',title:'Henrique + Amanda: cobertura do credenciamento',people:['Henrique','Amanda'],tipo:'Story · Reels · Fotos',equip:'Celular + câmera',obs:"Abordar 2–3 pessoas: 'De onde você veio?' — gravar 10s cada.\nStory: diversidade geográfica.",status:'nao-iniciado'},
+{id:'cr3',day:'sabado',time:'07h30+',block:'credencial',blockLabel:'Credenciamento',title:'Letícia: publicar stories do credenciamento',people:['Letícia'],tipo:'Postagem em tempo real',equip:'Celular',obs:'Prazo: 15 min após receber arquivo de Henrique ou Amanda.',status:'nao-iniciado'},
+{id:'ca1',day:'sabado',time:'08h00–09h00',block:'cafe',blockLabel:'Experiência Esmeralda',title:'Amanda + Henrique: cobertura do café gourmet e experiência VIP',people:['Amanda','Henrique'],tipo:'Story de exclusividade · Fotos',equip:'Câmera + celular',obs:"Capturar: café gourmet, açaí, concierge, pessoas conversando.\nCopy: 'Não é só evento. Olha que nível de experiência a gente preparou.'",status:'nao-iniciado'},
+{id:'ab1',day:'sabado',time:'09h00',block:'abertura',blockLabel:'Abertura do Evento',title:'Adriano: abertura com auditório lotado — câmera principal',people:['Adriano'],tipo:'Cobertura ao vivo',equip:'Câmera principal',obs:'Plano aberto do auditório cheio. Peça âncora do compilado.',status:'nao-iniciado'},
+{id:'ab2',day:'sabado',time:'09h00',block:'abertura',blockLabel:'Abertura do Evento',title:'Henrique: reações do público na abertura',people:['Henrique'],tipo:'Reações · Close público',equip:'Celular vertical',obs:'Close em expressões: surpresa, emoção, atenção.',status:'nao-iniciado'},
+{id:'ab3',day:'sabado',time:'09h00',block:'abertura',blockLabel:'Abertura do Evento',title:"Gabriella: story de abertura — 'Olha esse auditório'",people:['Gabriella','Henrique'],tipo:'Story em tempo real',equip:'Celular',obs:"Copy: 'Olha esse auditório. Cada pessoa aqui escolheu estar presente. Isso não é coincidência — é decisão.'",status:'nao-iniciado'},
+// William Douglas
+{id:'wd1',day:'sabado',time:'Palestra',block:'palestra',blockLabel:'William Douglas',title:'Cobertura completa — câmera palco + reações + stories de citação',people:['Adriano','Henrique','Amanda','Letícia'],tipo:'Cobertura de palestra',equip:'Câmera principal + celular',obs:'Letícia: frases de impacto em tempo real (fundo escuro + texto).\nHenrique: fecha no público (expressões, anotações).\nAmanda: fotos do palestrante.',status:'nao-iniciado'},
+{id:'wd2',day:'sabado',time:'Após palestra',block:'take',blockLabel:'William Douglas — Pós-Palestra',title:'Henrique: take orgânico para o feed',people:['Henrique'],tipo:'Reel orgânico · Feed',equip:'Celular vertical (9:16)',obs:'Cortar no CapCut. 15–45s. Tom orgânico.\nEnviar para Letícia publicar.',status:'nao-iniciado'},
+{id:'wd3',day:'sabado',time:'Após palestra',block:'take',blockLabel:'William Douglas — Pós-Palestra',title:'Paulo: foto com frase impactante de William Douglas',people:['Paulo'],tipo:'Arte · Feed',equip:'Celular / Canva',obs:'Pegar frase capturada por Letícia durante a palestra → arte → enviar para Letícia.',status:'nao-iniciado'},
+{id:'wd4',day:'sabado',time:'Após palestra',block:'take',blockLabel:'William Douglas — Pós-Palestra',title:'Letícia: publicar take (Henrique) + foto com frase (Paulo) no feed',people:['Letícia'],tipo:'Publicação · Feed',equip:'Celular',obs:'Publicar take + foto como sequência.',status:'nao-iniciado'},
+{id:'wd5',day:'sabado',time:'Após palestra',block:'take',blockLabel:'William Douglas — Pós-Palestra',title:'Gabriella: entrevista rápida com William Douglas nos bastidores',people:['Gabriella','Henrique'],tipo:'Entrevista pós-palestra',equip:'Celular vertical',obs:"Perguntas:\n1. 'Qual mensagem central — em uma frase?'\n2. 'O que esse tipo de evento faz pelo mercado educacional?'",status:'nao-iniciado'},
+// Ricardo Valle
+{id:'rv1',day:'sabado',time:'Palestra',block:'palestra',blockLabel:'Ricardo Valle',title:'Cobertura completa — câmera palco + reações + stories de citação',people:['Adriano','Henrique','Amanda','Letícia'],tipo:'Cobertura de palestra',equip:'Câmera principal + celular',obs:'Protocolo padrão.',status:'nao-iniciado'},
+{id:'rv2',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Ricardo Valle — Pós-Palestra',title:'Henrique: take orgânico para o feed',people:['Henrique'],tipo:'Reel orgânico · Feed',equip:'Celular vertical',obs:'Mesmo protocolo. Cortar no CapCut e enviar para Letícia.',status:'nao-iniciado'},
+{id:'rv3',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Ricardo Valle — Pós-Palestra',title:'Paulo: foto com frase impactante de Ricardo Valle',people:['Paulo'],tipo:'Arte · Feed',equip:'Celular / Canva',obs:'',status:'nao-iniciado'},
+{id:'rv4',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Ricardo Valle — Pós-Palestra',title:'Letícia: publicar take + foto com frase no feed',people:['Letícia'],tipo:'Publicação · Feed',equip:'Celular',obs:'',status:'nao-iniciado'},
+{id:'rv5',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Ricardo Valle — Pós-Palestra',title:'Gabriella: entrevista rápida com Ricardo Valle nos bastidores',people:['Gabriella','Henrique'],tipo:'Entrevista pós-palestra',equip:'Celular vertical',obs:"Perguntas:\n1. 'Qual mensagem central — em uma frase?'\n2. 'O que espera que os educadores façam diferente a partir de hoje?'",status:'nao-iniciado'},
+// Marlom
+{id:'ma1',day:'sabado',time:'Palestra',block:'palestra',blockLabel:'Marlom Andrade (CEO)',title:'Cobertura especial — CEO no palco (2 câmeras)',people:['Adriano','Henrique','Amanda','Letícia'],tipo:'Cobertura especial',equip:'Câmera principal + segundo ângulo',obs:'Adriano câmera fixa · Henrique segundo ângulo · Amanda foco nas expressões da plateia.',status:'nao-iniciado'},
+{id:'ma2',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Marlom Andrade — Pós-Palestra',title:'Henrique: take orgânico da palestra do Marlom',people:['Henrique'],tipo:'Reel orgânico · Feed',equip:'Celular vertical',obs:'Momento mais marcante. Enviar para Letícia.',status:'nao-iniciado'},
+{id:'ma3',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Marlom Andrade — Pós-Palestra',title:'Paulo: foto com frase impactante do Marlom',people:['Paulo'],tipo:'Arte · Feed',equip:'Celular / Canva',obs:'CEO no palco = conteúdo de alto impacto. Escolher frase de visão/missão.',status:'nao-iniciado'},
+{id:'ma4',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Marlom Andrade — Pós-Palestra',title:'Letícia: publicar take + foto com frase no feed',people:['Letícia'],tipo:'Publicação · Feed',equip:'Celular',obs:'',status:'nao-iniciado'},
+{id:'ma5',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Marlom Andrade — Pós-Palestra',title:"Gabriella: entrevista com Marlom — 'O que a Tutory representa além do negócio?'",people:['Gabriella','Adriano'],tipo:'Entrevista de autoridade',equip:'Câmera + celular',obs:"Pergunta: 'O que a Tutory representa pra você — além do negócio? O que você quer construir de verdade?'",status:'nao-iniciado'},
+{id:'al1',day:'sabado',time:'12h00',block:'almoco',blockLabel:'Almoço',title:'Adriano: editar vídeo real time da manhã',people:['Adriano'],tipo:'Edição',equip:'Notebook',obs:'30–45s. Montar durante o almoço.',status:'nao-iniciado'},
+{id:'al2',day:'sabado',time:'12h00',block:'almoco',blockLabel:'Almoço',title:'Gabriella + Letícia: depoimentos de participantes (3 Esmeraldas + 3 Pratas)',people:['Gabriella','Letícia'],tipo:'Depoimentos · Prova social',equip:'Celular',obs:"Perguntas:\n• 'O que mais te marcou até agora?'\n• 'Me conta um resultado desde que você entrou na Tutory.'",status:'nao-iniciado'},
+{id:'al3',day:'sabado',time:'12h30',block:'almoco',blockLabel:'Almoço',title:'Letícia: publicar vídeo real time da manhã',people:['Letícia'],tipo:'Publicação · Stories · WhatsApp',equip:'Celular',obs:"Enviar para: Stories, Feed e grupos WhatsApp Esmeralda e Prata.\nLegenda: 'A manhã foi assim. E a tarde ainda vem aí.'",status:'nao-iniciado'},
+{id:'at1',day:'sabado',time:'13h00+',block:'ativacao',blockLabel:'Ativações com Lucas e Thauan',title:'Henrique + Amanda: cobertura das dinâmicas',people:['Henrique','Amanda'],tipo:'Story de dinâmica · Fotos',equip:'Câmera + celular vertical',obs:'Foco na reação e energia do público.',status:'nao-iniciado'},
+{id:'at2',day:'sabado',time:'13h00+',block:'ativacao',blockLabel:'Ativações com Lucas e Thauan',title:"Gabriella: story narrando as ativações",people:['Gabriella','Henrique'],tipo:'Story narrativo',equip:'Celular',obs:"Copy: 'Agora é a parte que vai te pegar de surpresa...'",status:'nao-iniciado'},
+// Pedro Cooke
+{id:'pc1',day:'sabado',time:'Palestra',block:'palestra',blockLabel:'Pedro Cooke',title:'Cobertura completa — câmera palco + reações + stories',people:['Adriano','Henrique','Amanda','Letícia'],tipo:'Cobertura de palestra',equip:'Câmera + celular',obs:'Protocolo padrão. Referência ao podcast gravado na sexta se possível.',status:'nao-iniciado'},
+{id:'pc2',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Pedro Cooke — Pós-Palestra',title:'Henrique: take orgânico para o feed',people:['Henrique'],tipo:'Reel orgânico · Feed',equip:'Celular vertical',obs:'Mesmo protocolo. Enviar para Letícia.',status:'nao-iniciado'},
+{id:'pc3',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Pedro Cooke — Pós-Palestra',title:'Paulo: foto com frase impactante de Pedro Cooke',people:['Paulo'],tipo:'Arte · Feed',equip:'Celular / Canva',obs:'',status:'nao-iniciado'},
+{id:'pc4',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Pedro Cooke — Pós-Palestra',title:'Letícia: publicar take + foto com frase no feed',people:['Letícia'],tipo:'Publicação · Feed',equip:'Celular',obs:'',status:'nao-iniciado'},
+{id:'pc5',day:'sabado',time:'Após palestra',block:'take',blockLabel:'Pedro Cooke — Pós-Palestra',title:"Gabriella: entrevista com Pedro Cooke — 'podcast ontem, palco hoje'",people:['Gabriella','Henrique'],tipo:'Entrevista pós-palestra',equip:'Celular vertical',obs:"Pergunta: 'Você gravou com a gente ontem na sede. E agora aqui no palco. O que mudou de um dia pro outro?'",status:'nao-iniciado'},
+{id:'hs1',day:'sabado',time:'Hot Seat',block:'hotseat',blockLabel:'Hot Seat',title:'Adriano + Henrique + Amanda: cobertura do Hot Seat (3 frentes)',people:['Adriano','Henrique','Amanda'],tipo:'Vídeo emocional · Reel',equip:'2 câmeras + câmera fotográfica',obs:'Adriano: câmera principal · Henrique: close no participante · Amanda: expressões da plateia.\nNÃO usar flash. Alto potencial emocional.',status:'nao-iniciado'},
+{id:'rn1',day:'sabado',time:'Palestra',block:'palestra',blockLabel:'Rumo + Nelson Marangon',title:'Cobertura das palestras de Rumo e Nelson Marangon',people:['Adriano','Henrique','Letícia','Amanda'],tipo:'Cobertura de palestra',equip:'Câmera + celular',obs:'Protocolo padrão.',status:'nao-iniciado'},
+{id:'afs1',day:'sabado',time:'Durante evento',block:'adriana',blockLabel:'Adriana Figueiredo — No Evento',title:'Gabriella: conteúdos com Adriana Figueiredo no evento',people:['Gabriella','Adriano'],tipo:'Entrevista · Story · Reel',equip:'Câmera + celular',obs:"• Story reagindo ao evento\n• Clip: experiência presencial vs. digital\n• Depoimento ao final do dia",status:'nao-iniciado'},
+{id:'hh1',day:'sabado',time:'17h30–18h',block:'happyhour',blockLabel:'Encerramento / Happy Hour',title:'Adriano: editar vídeo real time final (compilado do dia)',people:['Adriano'],tipo:'Edição · Vídeo compilado',equip:'Notebook',obs:'60–90s. Abertura → palestras → público → Hot Seat → bastidores → happy hour.',status:'nao-iniciado'},
+{id:'hh2',day:'sabado',time:'18h00+',block:'happyhour',blockLabel:'Encerramento / Happy Hour',title:'Cobertura do happy hour — brinde, conexões, alegria',people:['Gabriella','Letícia','Amanda','Henrique'],tipo:'Story · Fotos · Ambiente',equip:'Câmera + celulares',obs:'Tom leve e de encerramento.',status:'nao-iniciado'},
+{id:'hh3',day:'sabado',time:'18h00+',block:'happyhour',blockLabel:'Encerramento / Happy Hour',title:"Gabriella: story emocional de encerramento",people:['Gabriella','Henrique'],tipo:'Story narrativo',equip:'Celular',obs:"Copy: 'Foi isso. Não dá pra resumir num story. Mas a gente tentou capturar tudo.'",status:'nao-iniciado'},
+{id:'hh4',day:'sabado',time:'Final',block:'happyhour',blockLabel:'Encerramento / Happy Hour',title:"Gabriella + Letícia + Henrique: depoimentos finais — 'uma palavra pra descrever hoje'",people:['Gabriella','Letícia','Henrique'],tipo:'Depoimentos · Série pós-evento',equip:'Celular vertical',obs:"Mínimo 6 depoimentos. Série: 1 por dia nos 5 dias seguintes.\nPerguntas: 'Você voltaria?' · 'O que aconteceu que você não esperava?'",status:'nao-iniciado'},
+{id:'hh5',day:'sabado',time:'Durante happy hour',block:'happyhour',blockLabel:'Encerramento / Happy Hour',title:'Letícia: publicar vídeo real time final em todos os canais',people:['Letícia'],tipo:'Publicação · Stories · Feed · WhatsApp',equip:'Celular',obs:"Legenda: '11 de abril. Brasília. Aqui está o que aconteceu.'",status:'nao-iniciado'},
+{id:'hh6',day:'sabado',time:'Ao sair',block:'happyhour',blockLabel:'Encerramento / Happy Hour',title:'Adriano: backup completo de todos os arquivos do evento',people:['Adriano'],tipo:'Backup',equip:'HD externo · Drive',obs:'Pasta: SÁBADO_11ABR > Palestras / Bastidores / Entrevistas / HappyHour\nNinguém sai antes de confirmar backup.',status:'nao-iniciado'},
+// ── PÓS ─────────────────────────────────────────────
+{id:'po1',day:'pos',time:'D+1 · 12/04',block:'pos',blockLabel:'Publicações da Semana',title:'Carrossel com fotos do evento + copy de encerramento',people:['Paulo','Letícia'],tipo:'Carrossel · Feed',equip:'—',obs:"8–10 fotos. Cronologia: abertura → palestras → conexões → happy hour.\nCopy: 'Isso foi o Tutory Experience. E tem mais por vir.'",status:'nao-iniciado'},
+{id:'po2',day:'pos',time:'D+1 · 12/04',block:'pos',blockLabel:'Publicações da Semana',title:'Reel: Depoimento 1 de 5',people:['Adriano','Letícia'],tipo:'Reel de depoimento · Série',equip:'—',obs:'Série: 1 depoimento por dia, 5 dias consecutivos.',status:'nao-iniciado'},
+{id:'po3',day:'pos',time:'D+1 · 12/04',block:'relac',blockLabel:'Relacionamento',title:'Gabriella: mensagem de agradecimento nos grupos WhatsApp Esmeralda e Prata',people:['Gabriella'],tipo:'WhatsApp · Comunidade',equip:'—',obs:'Copy emocional de encerramento. Não é venda — é pertencimento.',status:'nao-iniciado'},
+{id:'po4',day:'pos',time:'D+1 · 12/04',block:'relac',blockLabel:'Relacionamento',title:'Gabriella + Amanda: enviar fotos e vídeos para cada palestrante',people:['Gabriella','Amanda'],tipo:'Relacionamento · Amplificação orgânica',equip:'—',obs:'Mensagem personalizada. Palestrantes repostam = alcance amplificado.',status:'nao-iniciado'},
+{id:'po5',day:'pos',time:'D+2 · 13/04',block:'pos',blockLabel:'Publicações da Semana',title:'Corte de podcast: Jamilk + Reel Depoimento 2',people:['Adriano','Letícia'],tipo:'Reel · Corte de podcast',equip:'—',obs:'',status:'nao-iniciado'},
+{id:'po6',day:'pos',time:'D+3 · 14/04',block:'pos',blockLabel:'Publicações da Semana',title:'Corte de podcast: Thallius Moraes + Reel Depoimento 3',people:['Adriano','Letícia'],tipo:'Reel · Corte de podcast',equip:'—',obs:'',status:'nao-iniciado'},
+{id:'po7',day:'pos',time:'D+4 · 15/04',block:'pos',blockLabel:'Publicações da Semana',title:'Corte de podcast: Pedro Cooke + Reel Depoimento 4',people:['Adriano','Letícia'],tipo:'Reel · Corte de podcast',equip:'—',obs:'',status:'nao-iniciado'},
+{id:'po8',day:'pos',time:'D+5 · 16/04',block:'pos',blockLabel:'Publicações da Semana',title:'Corte de podcast: Juliano Tamago + Reel Depoimento 5 (com CTA)',people:['Adriano','Letícia'],tipo:'Reel · CTA',equip:'—',obs:"Último da série: incluir CTA para a plataforma Tutory.",status:'nao-iniciado'},
+{id:'po9',day:'pos',time:'D+6 · 17/04',block:'pos',blockLabel:'Publicações da Semana',title:'Corte de podcast: Guilherme Neves',people:['Adriano','Letícia'],tipo:'Corte de podcast · Reel',equip:'—',obs:'',status:'nao-iniciado'},
+{id:'po10',day:'pos',time:'D+7 · 18/04',block:'pos',blockLabel:'Publicações da Semana',title:'Mini-doc do evento (90s) — peça principal de conteúdo',people:['Adriano','Gabriella'],tipo:'Mini-documentário · Feed',equip:'—',obs:'Narração em off por Gabriella. Publicar no feed como reel principal.',status:'nao-iniciado'},
+{id:'po11',day:'pos',time:'D+7',block:'relac',blockLabel:'Relacionamento',title:'Gabriella: documentar aprendizados da cobertura para o próximo evento',people:['Gabriella'],tipo:'Documentação interna',equip:'—',obs:'O que funcionou / gargalou / faria diferente.\nRegistrar enquanto ainda está fresco.',status:'nao-iniciado'},
+];
+
+let idCounter = 1000;
+const state = { view:'day', day:'quinta', person:'Gabriella' };
+let editingId = null;
+
+// ── HELPERS ─────────────────────────────────────────
+function sc(s){ return {['nao-iniciado']:'ni',['em-andamento']:'ea',postado:'po',concluido:'co'}[s]||'ni' }
+function ptag(n){
+  const p=PEOPLE[n]||{color:'#888',bg:'rgba(128,128,128,.1)',border:'rgba(128,128,128,.3)'};
+  return `<span class="ptag" style="color:${p.color};background:${p.bg};border-color:${p.border}">${n}</span>`;
+}
+function getTask(id){ return tasks.find(t=>t.id===id) }
+function newId(){ return 'task-'+(++idCounter) }
+
+function updateStats(){
+  const cnt={'nao-iniciado':0,'em-andamento':0,postado:0,concluido:0};
+  tasks.forEach(t=>cnt[t.status]++);
+  document.getElementById('cnt-ea').textContent=cnt['em-andamento'];
+  document.getElementById('cnt-po').textContent=cnt.postado;
+  document.getElementById('cnt-co').textContent=cnt.concluido;
+  const total=tasks.length, done=cnt.concluido+cnt.postado;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  ['quinta','sexta','sabado','pos'].forEach(d=>{
+    const dt=tasks.filter(t=>t.day===d);
+    const dn=dt.filter(t=>t.status==='concluido'||t.status==='postado').length;
+    const el=document.getElementById('dc-'+d);
+    if(el) el.textContent=dn+'/'+dt.length;
+  });
+}
+
+// ── CARD RENDER ─────────────────────────────────────
+function renderCard(t){
+  const s=t.status, k=sc(s);
+  const bc=BLOCKS[t.block]||BLOCKS.setup;
+  const btns=[
+    ['nao-iniciado','N/I'],['em-andamento','…'],['postado','Post'],['concluido','✓']
+  ].map(([v,l])=>
+    `<button class="ss-opt${s===v?' active-'+sc(v):''}" data-val="${v}" onclick="quickStatus('${t.id}','${v}',this);event.stopPropagation()">${l}</button>`
+  ).join('');
+
+  const detail=`<div class="tc-detail">
+    <div class="d-row"><span class="d-lbl">Tipo</span><span class="tipo-tag">${t.tipo||'—'}</span></div>
+    ${t.equip&&t.equip!=='—'?`<div class="d-row"><span class="d-lbl">Equip.</span><span class="d-val">${t.equip}</span></div>`:''}
+    ${t.obs?`<div class="obs-box">${t.obs.replace(/\n/g,'<br>')}</div>`:''}
+  </div>`;
+
+  return `<div class="task-card" id="card-${t.id}">
+    <div class="tc-strip strip-${k}"></div>
+    <div class="tc-top" onclick="toggleCard('${t.id}')">
+      <div class="tc-time">${t.time||'—'}</div>
+      <div class="tc-body">
+        <div class="tc-title">${t.title}</div>
+        <div class="tc-people">${t.people.map(ptag).join('')}</div>
+      </div>
+      <div class="tc-actions">
+        <div class="status-sel">${btns}</div>
+        <div style="display:flex;gap:4px;align-items:center">
+          <button class="btn-edit" onclick="openEditModal('${t.id}');event.stopPropagation()">✏ editar</button>
+          <div class="tc-expand">▾</div>
+        </div>
+      </div>
+    </div>${detail}
+  </div>`;
+}
+
+function toggleCard(id){
+  document.getElementById('card-'+id)?.classList.toggle('open');
+}
+
+function quickStatus(id,val,el){
+  const t=getTask(id); if(!t) return;
+  t.status=val;
+  const card=document.getElementById('card-'+id);
+  card.querySelector('.tc-strip').className='tc-strip strip-'+sc(val);
+  card.querySelectorAll('.ss-opt').forEach(b=>{
+    b.className='ss-opt'+(b.dataset.val===val?' active-'+sc(val):'');
+  });
+  updateStats();
+}
+
+// ── DAY VIEW ─────────────────────────────────────────
+function renderDayView(day){
+  const d=DAYS[day], ts=tasks.filter(t=>t.day===day);
+  const done=ts.filter(t=>t.status==='concluido'||t.status==='postado').length;
+  const blocks={}, order=[];
+  ts.forEach(t=>{
+    if(!blocks[t.blockLabel]){blocks[t.blockLabel]={key:t.block,tasks:[]};order.push(t.blockLabel)}
+    blocks[t.blockLabel].tasks.push(t);
+  });
+  const html=order.map(bl=>{
+    const b=blocks[bl], bc=BLOCKS[b.key]||BLOCKS.setup;
+    const bdn=b.tasks.filter(t=>t.status==='concluido'||t.status==='postado').length;
+    return `<div class="block">
+      <div class="block-header" style="border-left-color:${bc.color}">
+        <span class="bh-title" style="color:${bc.color}">${bl}</span>
+        <span class="bh-count">${bdn}/${b.tasks.length}</span>
+      </div>
+      ${b.tasks.map(renderCard).join('')}
+      <button class="btn-add-task" onclick="openAddModal('${day}','${b.key}','${bl}')">+ adicionar tarefa neste bloco</button>
+    </div>`;
+  }).join('');
+  return `<div class="view-header">
+    <div class="vh-num">${d.num}</div>
+    <div class="vh-info"><h2>${d.icon} ${d.label}</h2><p>${d.date} · ${ts.length} tarefas</p></div>
+    <div class="vh-badge">${done}/${ts.length}</div>
+  </div>${html}
+  <button class="btn-add-task" style="margin-top:8px" onclick="openAddModal('${day}')">+ novo bloco / tarefa no dia</button>`;
+}
+
+// ── PERSON VIEW ──────────────────────────────────────
+function renderPersonView(name){
+  const p=PEOPLE[name]||{color:'#c9a84c',bg:'rgba(201,168,76,.12)',border:'rgba(201,168,76,.3)',role:'',av:name[0]};
+  const ts=tasks.filter(t=>t.people.includes(name));
+  const done=ts.filter(t=>t.status==='concluido'||t.status==='postado').length;
+  const byDay={};
+  ts.forEach(t=>{ if(!byDay[t.day]) byDay[t.day]=[]; byDay[t.day].push(t); });
+  const dHtml=['quinta','sexta','sabado','pos'].filter(d=>byDay[d]).map(d=>{
+    const info=DAYS[d];
+    return `<div><span class="pdg-lbl">${info.icon} ${info.label} · ${info.date}</span>
+    ${byDay[d].map(renderCard).join('')}</div>`;
+  }).join('');
+  return `<div class="person-hdr">
+    <div class="person-av" style="background:${p.bg};color:${p.color};border-color:${p.border}">${p.av}</div>
+    <div class="person-info"><h3>${name}</h3><p>${p.role}</p></div>
+    <div class="person-tc">${done}/${ts.length}</div>
+  </div>${dHtml||'<div class="empty-state"><div class="ei">📭</div><h3>Sem tarefas</h3><p>Nenhuma tarefa atribuída.</p></div>'}`;
+}
+
+// ── NAVIGATION ───────────────────────────────────────
+function setView(v){
+  state.view=v;
+  document.querySelectorAll('.vt-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&v==='day')||(i===1&&v==='person')));
+  document.getElementById('day-nav').style.display=v==='day'?'block':'none';
+  document.getElementById('person-nav').style.display=v==='person'?'block':'none';
+  document.getElementById('day-subtabs').style.display=v==='day'?'block':'none';
+  document.getElementById('person-subtabs').style.display=v==='person'?'block':'none';
+  document.getElementById('bn-day').classList.toggle('active',v==='day');
+  document.getElementById('bn-person').classList.toggle('active',v==='person');
+  if(v==='day') selectDay(state.day||'quinta');
+  else selectPerson(state.person||'Gabriella');
+}
+
+function selectDay(day){
+  state.day=day;
+  document.querySelectorAll('#day-nav .nav-item').forEach(n=>n.classList.toggle('active',n.id==='nav-'+day));
+  document.querySelectorAll('.dst').forEach(n=>n.classList.toggle('active',n.dataset.day===day));
+  document.getElementById('main').innerHTML=renderDayView(day);
+  document.getElementById('main').scrollTop=0;
+  updateStats();
+}
+
+function selectPerson(name){
+  state.person=name;
+  document.querySelectorAll('#person-nav .nav-item').forEach(n=>n.classList.toggle('active',n.dataset.person===name));
+  document.querySelectorAll('.pst').forEach(n=>n.classList.toggle('active',n.dataset.person===name));
+  document.getElementById('main').innerHTML=renderPersonView(name);
+  document.getElementById('main').scrollTop=0;
+}
+
+// ── MODAL ────────────────────────────────────────────
+function buildBlockChips(selectedKey){
+  return Object.entries(BLOCKS).map(([k,b])=>
+    `<div class="bchip${selectedKey===k?' selected':''}" data-block="${k}" onclick="selectBlockChip(this)" style="border-color:${selectedKey===k?b.color:'var(--border2)'};color:${selectedKey===k?b.color:'var(--text3)'}">${b.label}</div>`
+  ).join('');
+}
+
+function buildPeopleChips(selectedPeople){
+  return Object.entries(PEOPLE).map(([n,p])=>
+    `<div class="pchip${selectedPeople.includes(n)?' selected':''}" data-person="${n}" onclick="togglePeopleChip(this)" style="${selectedPeople.includes(n)?`background:${p.bg};color:${p.color};border-color:${p.border}`:''}">
+      <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${p.color};margin-right:4px;vertical-align:middle"></span>${n}
+    </div>`
+  ).join('');
+}
+
+function openAddModal(day, blockKey, blockLabel){
+  editingId=null;
+  document.getElementById('modal-title').textContent='Nova Tarefa';
+  document.getElementById('btn-del').style.display='none';
+  document.getElementById('edit-id').value='';
+  document.getElementById('f-title').value='';
+  document.getElementById('f-time').value='';
+  document.getElementById('f-day').value=day||state.day||'quinta';
+  document.getElementById('f-tipo').value='';
+  document.getElementById('f-equip').value='';
+  document.getElementById('f-obs').value='';
+  document.getElementById('block-chips').innerHTML=buildBlockChips(blockKey||'setup');
+  document.getElementById('people-chips').innerHTML=buildPeopleChips([]);
+  document.querySelectorAll('.schip').forEach(c=>{ c.classList.remove('sel'); if(c.dataset.val==='nao-iniciado') c.classList.add('sel'); });
+  openModal();
+}
+
+function openEditModal(id){
+  const t=getTask(id); if(!t) return;
+  editingId=id;
+  document.getElementById('modal-title').textContent='Editar Tarefa';
+  document.getElementById('btn-del').style.display='block';
+  document.getElementById('edit-id').value=id;
+  document.getElementById('f-title').value=t.title;
+  document.getElementById('f-time').value=t.time;
+  document.getElementById('f-day').value=t.day;
+  document.getElementById('f-tipo').value=t.tipo||'';
+  document.getElementById('f-equip').value=t.equip||'';
+  document.getElementById('f-obs').value=t.obs||'';
+  document.getElementById('block-chips').innerHTML=buildBlockChips(t.block);
+  document.getElementById('people-chips').innerHTML=buildPeopleChips(t.people);
+  document.querySelectorAll('.schip').forEach(c=>{ c.classList.toggle('sel',c.dataset.val===t.status); });
+  openModal();
+}
+
+function openModal(){
+  document.getElementById('modal-overlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+
+function handleOverlayClick(e){
+  if(e.target===document.getElementById('modal-overlay')) closeModal();
+}
+
+function selectBlockChip(el){
+  document.querySelectorAll('.bchip').forEach(c=>{ c.classList.remove('selected'); c.style.borderColor='var(--border2)'; c.style.color='var(--text3)'; });
+  const k=el.dataset.block, b=BLOCKS[k]||{color:'var(--gold)'};
+  el.classList.add('selected'); el.style.borderColor=b.color; el.style.color=b.color;
+}
+
+function togglePeopleChip(el){
+  const n=el.dataset.person, p=PEOPLE[n]||{};
+  el.classList.toggle('selected');
+  if(el.classList.contains('selected')){ el.style.background=p.bg; el.style.color=p.color; el.style.borderColor=p.border; }
+  else { el.style.background=''; el.style.color=''; el.style.borderColor=''; }
+}
+
+function selectStatusChip(el){
+  document.querySelectorAll('.schip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function getSelectedBlock(){ return document.querySelector('.bchip.selected')?.dataset.block||'setup' }
+function getSelectedPeople(){ return [...document.querySelectorAll('.pchip.selected')].map(c=>c.dataset.person) }
+function getSelectedStatus(){ return document.querySelector('.schip.sel')?.dataset.val||'nao-iniciado' }
+function getSelectedBlockLabel(){ const k=getSelectedBlock(); return BLOCKS[k]?.label||k }
+
+function saveTask(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){ document.getElementById('f-title').style.borderColor='var(--danger)'; return; }
+  document.getElementById('f-title').style.borderColor='';
+
+  const data={
+    title, time:document.getElementById('f-time').value.trim()||'—',
+    day:document.getElementById('f-day').value,
+    block:getSelectedBlock(), blockLabel:getSelectedBlockLabel(),
+    people:getSelectedPeople(), tipo:document.getElementById('f-tipo').value.trim(),
+    equip:document.getElementById('f-equip').value.trim()||'—',
+    obs:document.getElementById('f-obs').value.trim(),
+    status:getSelectedStatus(),
+  };
+
+  if(editingId){
+    const idx=tasks.findIndex(t=>t.id===editingId);
+    if(idx>-1) tasks[idx]={...tasks[idx],...data};
+  } else {
+    tasks.push({id:newId(),...data});
+  }
+
+  closeModal();
+  if(state.view==='day') selectDay(state.day);
+  else selectPerson(state.person);
+}
+
+let pendingDeleteId=null;
+function confirmDelete(){
+  const id=document.getElementById('edit-id').value;
+  pendingDeleteId=id;
+  document.getElementById('confirm-overlay').classList.add('active');
+}
+
+function deleteTask(){
+  if(pendingDeleteId){
+    tasks=tasks.filter(t=>t.id!==pendingDeleteId);
+    pendingDeleteId=null;
+  }
+  document.getElementById('confirm-overlay').classList.remove('active');
+  closeModal();
+  if(state.view==='day') selectDay(state.day);
+  else selectPerson(state.person);
+}
+
+// ── INIT ────────────────────────────────────────────
+function init(){
+  // Sidebar person nav
+  const pnav=document.getElementById('person-nav');
+  Object.entries(PEOPLE).forEach(([n,p])=>{
+    const tc=tasks.filter(t=>t.people.includes(n)).length;
+    pnav.innerHTML+=`<div class="nav-item" onclick="selectPerson('${n}')" data-person="${n}" id="pnav-${n}">
+      <span class="person-dot" style="background:${p.color}"></span>${n}<span class="ni-count">${tc}</span>
+    </div>`;
+  });
+
+  // Mobile day subtabs
+  const dst=document.getElementById('day-subtabs');
+  Object.entries(DAYS).forEach(([k,d])=>{
+    dst.innerHTML+=`<div class="dst${k==='quinta'?' active':''}" data-day="${k}" onclick="selectDay('${k}')">${d.icon} ${d.label}</div>`;
+  });
+
+  // Mobile person subtabs
+  const pst=document.getElementById('person-subtabs');
+  Object.entries(PEOPLE).forEach(([n,p])=>{
+    pst.innerHTML+=`<div class="pst" data-person="${n}" onclick="selectPerson('${n}')">
+      <span class="pst-dot" style="background:${p.bg};color:${p.color};border-color:${p.border}">${p.av}</span>
+      <span>${n}</span>
+    </div>`;
+  });
+
+  updateStats();
+  selectDay('quinta');
+}
+
+init();
+</script>
+</body>
+</html>
